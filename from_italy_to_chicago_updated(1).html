@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore the history of Italian-American food and culture in Chicago through an interactive timeline.">
+  <title>From Italy to Chicago | An Interactive Food History</title>
+
+  <style>
+    :root {
+      --page: #f7f3eb;
+      --paper: #fffdf9;
+      --ink: #29271f;
+      --muted: #6a665c;
+      --line: #ded8cc;
+      --accent: #8b4535;
+      --accent-dark: #693124;
+      --soft-accent: #efe2d9;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    a { color: var(--accent-dark); }
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .page-header {
+      width: min(calc(100% - 36px), 1000px);
+      margin: 0 auto;
+      padding: 60px 0 38px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      line-height: 1.5;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 20px 0 24px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(30px, 5vw, 48px);
+      font-weight: 400;
+      line-height: 1.08;
+    }
+
+    .intro {
+      max-width: 620px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-family: "Avenir Next", Avenir, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    main {
+      width: min(calc(100% - 36px), 1000px);
+      margin: 0 auto;
+    }
+
+    .section-heading {
+      margin: 0 0 22px;
+      text-align: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 24px;
+      font-weight: 400;
+    }
+
+    .timeline-navigation {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 0 auto 34px;
+    }
+
+    .era-button {
+      min-height: 42px;
+      padding: 10px 15px;
+      border: 1px solid #bdb4a6;
+      border-radius: 2px;
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+    }
+
+    .era-button:hover {
+      border-color: var(--accent);
+      background: var(--soft-accent);
+    }
+
+    .era-button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    .story-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(28px, 5vw, 58px);
+      align-items: start;
+      padding: 30px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .image-panel { min-width: 0; }
+
+    .image-frame {
+      display: flex;
+      min-height: 260px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #eee8de;
+    }
+
+    #story-image {
+      display: block;
+      width: 100%;
+      max-height: 520px;
+      object-fit: contain;
+    }
+
+    #story-caption {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    #story-caption a { text-underline-offset: 3px; }
+
+    .story-copy { min-width: 0; }
+
+    .story-date {
+      margin: 0 0 12px;
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      line-height: 1.5;
+      text-transform: uppercase;
+    }
+
+    #story-title {
+      margin: 0 0 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(27px, 3.3vw, 36px);
+      font-weight: 400;
+      line-height: 1.16;
+    }
+
+    #story-text {
+      color: #454138;
+      font-family: "Avenir Next", Avenir, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.85;
+    }
+
+    #story-text p { margin: 0 0 16px; }
+    #story-text p:last-child { margin-bottom: 0; }
+
+    .source-list {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .source-list h3 {
+      margin: 0 0 8px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .source-list ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .important-facts {
+      margin-top: 24px;
+      padding: 18px 20px;
+      background: #efe8dc;
+      border-left: 3px solid var(--accent);
+    }
+
+    .important-facts h3 {
+      margin: 0 0 12px;
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+
+    .important-facts ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #454138;
+      font-family: "Avenir Next", Avenir, Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .important-facts li + li { margin-top: 6px; }
+
+    .story-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 22px 0 0;
+    }
+
+    .control-button {
+      min-height: 42px;
+      padding: 10px 15px;
+      border: 1px solid #bdb4a6;
+      border-radius: 2px;
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .control-button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--soft-accent);
+    }
+
+    .control-button:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+    }
+
+    .progress-note {
+      margin: 15px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .closing-note {
+      max-width: 720px;
+      margin: 38px auto 0;
+      padding: 22px 0 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 16px;
+      font-style: italic;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    footer {
+      width: min(calc(100% - 36px), 1000px);
+      margin: 42px auto 0;
+      padding: 20px 0 36px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    footer p { margin: 6px 0; }
+
+    @media (max-width: 760px) {
+      .page-header { padding-top: 42px; }
+      .story-card {
+        grid-template-columns: 1fr;
+        gap: 26px;
+      }
+      .image-frame { min-height: 180px; }
+      #story-image { max-height: 420px; }
+      #story-title { font-size: 30px; }
+    }
+
+    @media (max-width: 480px) {
+      .timeline-navigation { display: grid; grid-template-columns: 1fr; }
+      .era-button { width: 100%; text-align: left; }
+      .story-controls { gap: 8px; }
+      .control-button { padding: 10px 11px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="page-header">
+    <p class="eyebrow">Food · Migration · Community</p>
+    <h1>From Italy to Chicago</h1>
+    <p class="intro">
+      Explore how Italian immigrants and their descendants helped shape Chicago’s food culture.
+      Move through the timeline to discover the people, neighborhood businesses, and traditions
+      connected to this evolving story.
+    </p>
+  </header>
+
+  <main>
+    <h2 class="section-heading">Explore the timeline</h2>
+    <nav class="timeline-navigation" id="timeline-navigation" aria-label="Choose a timeline era">
+      <!-- Timeline buttons are generated by JavaScript. -->
+    </nav>
+
+    <section class="story-card" aria-labelledby="story-title">
+      <div class="image-panel">
+        <div class="image-frame">
+          <img id="story-image" src="images/1.jpeg" alt="Historical photograph connected to Italian immigrant life in Chicago.">
+        </div>
+        <p id="story-caption">Loading image caption…</p>
+        <div class="source-list">
+          <h3>Explore the Sources</h3>
+          <ul id="story-sources"></ul>
+        </div>
+      </div>
+
+      <article class="story-copy" aria-live="polite" aria-atomic="true">
+        <p class="story-date" id="story-date">Late 1800s–early 1900s</p>
+        <h2 id="story-title">Bringing Traditions to Chicago</h2>
+        <div id="story-text">
+          <p>Italian immigrants built communities in Chicago while adapting to life in a new city.</p>
+        </div>
+              </article>
+    </section>
+
+    <section class="important-facts" aria-labelledby="important-facts-heading">
+  <h3 id="important-facts-heading">Important Facts</h3>
+  <ul id="important-facts-list"></ul>
+</section>
+
+    <div class="story-controls" aria-label="Timeline controls">
+      <button class="control-button" id="previous-button" type="button">← Previous</button>
+      <button class="control-button" id="next-button" type="button">Next →</button>
+    </div>
+    <p class="progress-note" id="progress-note" aria-live="polite">Era 1 of 5</p>
+
+    <p class="closing-note">
+      Food history is also the history of migration, family, work, and neighborhood life.
+      Chicago’s Italian-American food culture continues to change while carrying traces of the
+      communities that helped shape it.
+    </p>
+  </main>
+
+  <footer>
+    <p><strong>Research and image credits</strong></p>
+    <p>
+      Research links and image records are provided with each timeline entry. Consult each
+      original image record for the photographer, license terms, and reuse permissions.
+      Historical photographs illustrate specific moments and should be read alongside reliable
+      historical sources.
+    </p>
+    <p>ChatGPT was used to assist with HTML, CSS, JavaScript development, and troubleshooting.</p>
+  </footer>
+
+  <script>
+    // Each era contains the text, image, caption, and source links for one timeline stop.
+    const eras = [
+      {
+        date: "Late 1800s–early 1900s",
+        shortDate: "Late 1800s–early 1900s",
+        title: "Bringing Traditions to Chicago",
+        image: "images/1.jpeg",
+        alt: "A historical photograph of an Italian immigrant home near Hull-House in Chicago.",
+        caption: 'Photograph: Lewis Wickes Hine, “An Italian Home Near Hull House,” 1910. View the <a href="https://commons.wikimedia.org/wiki/File:An_Italian_Home_Near_Hull_House,_1910_LACMA_AC1992.255.1.jpg" target="_blank" rel="noopener noreferrer">image record</a> for catalog and reuse details.',
+        paragraphs: [
+          "In the late nineteenth and early twentieth centuries, immigrants from Italy became part of Chicago’s growing immigrant population. Families built lives in city neighborhoods while maintaining relationships, customs, and traditions connected to their places of origin. Hull-House, founded by Jane Addams and Ellen Gates Starr in 1889, became an important settlement-house institution in Chicago’s immigrant neighborhoods.",
+          "Food can be one way families carry culture across generations, but a photograph of a home does not tell us exactly what its residents ate. This 1910 image offers a glimpse of immigrant life near Hull-House. Read alongside historical research, it helps place the story of food traditions within the larger experiences of immigration, work, and neighborhood life."
+        ],
+        importantFacts: [
+          "Hull-House was founded in Chicago in 1889 by Jane Addams and Ellen Gates Starr.",
+          "Italian immigrants were part of Chicago’s wider immigrant population in the late 1800s and early 1900s.",
+          "A photograph of a home provides historical context, but does not establish what food residents ate."
+        ],
+        sources: [
+          { label: "Jane Addams Hull-House Museum: History", url: "https://hullhouse.uic.edu/about/our-history/" },
+          { label: "Wikimedia Commons image record", url: "https://commons.wikimedia.org/wiki/File:An_Italian_Home_Near_Hull_House,_1910_LACMA_AC1992.255.1.jpg" }
+        ]
+      },
+      {
+        date: "1920s–1930s",
+        shortDate: "1920s–1930s",
+        title: "Family Businesses and Neighborhood Life",
+        image: "images/2.jpeg",
+        alt: "A historical photograph of Milano’s Grocery Store in Southeast Chicago, around 1930.",
+        caption: 'Milano’s Grocery Store, photographed around 1930. Consult the <a href="https://www.sechicagohistory.org/archive/browse/milanos-grocery-store/" target="_blank" rel="noopener noreferrer">Southeast Chicago Historical Society archive record</a> for available catalog and credit information.',
+        paragraphs: [
+          "By the early twentieth century, neighborhood grocery stores helped residents buy everyday necessities close to home. In communities across Chicago, local stores were part of the daily routines that connected households, small businesses, and neighborhood life. They are useful evidence of local commerce, even when a photograph alone cannot tell us which products were sold.",
+          "The Southeast Chicago Historical Society identifies this image as Milano’s Grocery Store and dates it to around 1930. That record gives the timeline a specific local example rather than a generalized image of an old grocery store. Unless the archive documents the owners or inventory, however, it would be inaccurate to claim that this particular store sold specific Italian foods."
+        ],
+        importantFacts: [
+          "The archive identifies the pictured business as Milano’s Grocery Store.",
+          "The photograph is dated to around 1930.",
+          "The image documents a neighborhood grocery store, but its exact inventory should not be assumed."
+        ],
+        sources: [
+          { label: "Southeast Chicago Historical Society: Milano’s Grocery Store", url: "https://www.sechicagohistory.org/archive/browse/milanos-grocery-store/" },
+          { label: "Choose Chicago: Little Italy–University Village", url: "https://www.choosechicago.com/neighborhoods/little-italy-university-village/" }
+        ]
+      },
+      {
+        date: "1943 onward",
+        shortDate: "1943 onward",
+        title: "Chicago Makes Pizza Its Own",
+        image: "images/3.jpeg",
+        alt: "A Chicago-style deep-dish pizza associated with the city’s distinctive pizza tradition.",
+        caption: 'Chicago-style deep-dish pizza. See the <a href="https://commons.wikimedia.org/wiki/File:Pizzeria_Uno_Chicago-style_deep-dish_pizza.jpg" target="_blank" rel="noopener noreferrer">Wikimedia Commons image record</a> for the image’s photographer and license information.',
+        paragraphs: [
+          "Chicago developed a pizza style recognized for its deep pan, substantial crust, and layers of cheese, toppings, and tomato sauce. Pizzeria Uno opened in 1943 and became closely associated with the city’s deep-dish tradition. Compared with a thin, flat pizza, deep-dish is built to hold a thicker filling and is typically served as a substantial meal.",
+          "The exact origins of deep-dish pizza are debated, so it is more accurate to describe Pizzeria Uno as an important part of the style’s early history and popularization than to present one restaurant’s claim as the only version of the story. The dish illustrates how Italian-inspired food developed a distinct local identity in Chicago."
+        ],
+        importantFacts: [
+          "Pizzeria Uno opened in Chicago in 1943.",
+          "Deep-dish pizza is known for its deep pan and substantial crust.",
+          "The origins of Chicago-style deep-dish pizza remain debated by historians and food writers."
+        ],
+        sources: [
+          { label: "Chicago History Museum: Chicago-style pizza", url: "https://www.chicagohistory.org/pizza-chicago-style/" },
+          { label: "Culinary Historians of Chicago: Origins of deep-dish pizza", url: "https://culinaryhistorians.org/the-origins-of-deep-dish-pizza-whats-true-whats-false-and-whats-arguable/" },
+          { label: "Wikimedia Commons image record", url: "https://commons.wikimedia.org/wiki/File:Pizzeria_Uno_Chicago-style_deep-dish_pizza.jpg" }
+        ]
+      },
+      {
+        date: "1970s",
+        shortDate: "1970s",
+        title: "Pasta, Family, and Everyday Tradition",
+        image: "images/4.jpeg",
+        alt: "Gilda Sottile preparing pasta and sauce at home in a 1977 photograph from the Chicago Ethnic Arts Project collection.",
+        caption: 'Gilda Sottile preparing pasta and sauce at home, May 10, 1977. See the <a href="https://www.loc.gov/resource/afc1981004.10_172/?sp=2&st=grid" target="_blank" rel="noopener noreferrer">Library of Congress collection record</a> for catalog and rights information.',
+        paragraphs: [
+          "Home cooking is one place where cultural traditions can be practiced, adapted, and passed between generations. Preparing familiar dishes can connect everyday routines with family memory and cultural identity, while recipes and techniques may change as families encounter new ingredients, schedules, and tastes.",
+          "The Library of Congress catalog identifies this photograph as Gilda Sottile preparing pasta and sauce at home on May 10, 1977, in materials associated with the Chicago Ethnic Arts Project. The photograph records one person and one moment in time. It offers a concrete example of home food preparation, not proof that every Italian-American family cooked in the same way."
+        ],
+        importantFacts: [
+          "The photograph is dated May 10, 1977.",
+          "The Library of Congress record identifies Gilda Sottile preparing pasta and sauce at home.",
+          "A single photograph illustrates one domestic scene, not every family’s food traditions."
+        ],
+        sources: [
+          { label: "Library of Congress: Chicago Ethnic Arts Project image record", url: "https://www.loc.gov/resource/afc1981004.10_172/?sp=2&st=grid" },
+          { label: "Library of Congress: collection finding aid", url: "https://tile.loc.gov/storage-services/service/gdc/gdcfindingaidpdfs/af014006/af014006.pdf" }
+        ]
+      },
+      {
+        date: "Late 1900s–today",
+        shortDate: "Late 1900s–today",
+        title: "A Living, Changing Food Culture",
+        image: "images/5.jpeg",
+        alt: "A contemporary spread of Italian-inspired dishes, including pasta and pizza.",
+        caption: 'Contemporary Italian-inspired food photograph. Check the <a href="https://unsplash.com/photos/a-spread-of-italian-food-including-pizza-and-pasta-y2nHaRD9iq0" target="_blank" rel="noopener noreferrer">Unsplash image page</a> to confirm the photographer, image match, and current license details.',
+        paragraphs: [
+          "Italian-American food culture is not frozen in the past. Restaurants, home cooks, and neighborhood institutions continue to interpret familiar dishes, combine influences, and respond to changing tastes. As a result, a dish served in Chicago may reflect Italian culinary roots while also representing generations of adaptation in the United States.",
+          "Today, Italian food remains visible in Chicago’s dining landscape, including in and around the Little Italy–University Village neighborhood. The neighborhood’s history and present-day restaurants help connect food to place, memory, and community. A contemporary food photograph can illustrate dishes, but local history and restaurant research provide the context for understanding the culture behind them."
+        ],
+        importantFacts: [
+          "Italian-American food culture continues to evolve rather than remain fixed in the past.",
+          "Little Italy–University Village remains associated with Italian-American neighborhood history and dining.",
+          "Contemporary dishes can reflect both Italian culinary traditions and adaptations made in the United States."
+        ],
+        sources: [
+          { label: "Choose Chicago: Little Italy–University Village", url: "https://www.choosechicago.com/neighborhoods/little-italy-university-village/" },
+          { label: "Unsplash image page", url: "https://unsplash.com/photos/a-spread-of-italian-food-including-pizza-and-pasta-y2nHaRD9iq0" }
+        ]
+      }
+    ];
+
+    // Element references
+    const navigationEl = document.getElementById("timeline-navigation");
+    const imageEl = document.getElementById("story-image");
+    const captionEl = document.getElementById("story-caption");
+    const dateEl = document.getElementById("story-date");
+    const titleEl = document.getElementById("story-title");
+    const textEl = document.getElementById("story-text");
+    const sourcesEl = document.getElementById("story-sources");
+    const importantFactsEl = document.getElementById("important-facts-list");
+    const previousButton = document.getElementById("previous-button");
+    const nextButton = document.getElementById("next-button");
+    const progressNote = document.getElementById("progress-note");
+
+    let currentEraIndex = 0;
+
+    // Create one navigation button for each timeline era.
+    eras.forEach((era, index) => {
+      const button = document.createElement("button");
+      button.className = "era-button";
+      button.type = "button";
+      button.textContent = era.shortDate;
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("click", () => showEra(index));
+      navigationEl.appendChild(button);
+    });
+
+    const navigationButtons = Array.from(
+      navigationEl.querySelectorAll(".era-button")
+    );
+
+    // Update the image and provide a fallback if the file cannot load.
+    function showImageError() {
+      imageEl.alt = "Image unavailable.";
+      captionEl.textContent =
+        "Image unavailable. Please check the image filename and path.";
+    }
+
+    function showEra(index) {
+      if (index < 0 || index >= eras.length) return;
+
+      currentEraIndex = index;
+      const era = eras[currentEraIndex];
+
+      dateEl.textContent = era.date;
+      titleEl.textContent = era.title;
+
+      // Add the story paragraphs safely as text.
+      textEl.replaceChildren();
+      era.paragraphs.forEach((paragraph) => {
+        const p = document.createElement("p");
+        p.textContent = paragraph;
+        textEl.appendChild(p);
+      });
+
+      // Refresh the facts list for the selected era.
+      importantFactsEl.replaceChildren();
+      era.importantFacts.forEach((fact) => {
+        const li = document.createElement("li");
+        li.textContent = fact;
+        importantFactsEl.appendChild(li);
+      });
+
+      // Reset the fallback for each new image, then load the selected image.
+      imageEl.onerror = () => {
+        imageEl.onerror = null;
+        showImageError();
+      };
+
+      imageEl.alt = era.alt;
+      captionEl.innerHTML = era.caption;
+      imageEl.src = era.image;
+
+      // Update source links for the selected story.
+      sourcesEl.replaceChildren();
+      era.sources.forEach((source) => {
+        const li = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = source.url;
+        link.textContent = source.label;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        li.appendChild(link);
+        sourcesEl.appendChild(li);
+      });
+
+      // Update navigation and progress information.
+      navigationButtons.forEach((button, buttonIndex) => {
+        button.setAttribute(
+          "aria-pressed",
+          buttonIndex === currentEraIndex ? "true" : "false"
+        );
+      });
+
+      previousButton.disabled = currentEraIndex === 0;
+      nextButton.disabled = currentEraIndex === eras.length - 1;
+      progressNote.textContent = `Era ${currentEraIndex + 1} of ${eras.length}`;
+    }
+
+    previousButton.addEventListener("click", () => {
+      if (currentEraIndex > 0) showEra(currentEraIndex - 1);
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (currentEraIndex < eras.length - 1) showEra(currentEraIndex + 1);
+    });
+
+    // Display the first era when the page opens.
+    showEra(0);
+  </script>
+</body>
+</html>
